@@ -11,14 +11,16 @@ CACHE_DIR=$2
 CACHE_ENABLED=true
 VENDOR_DIR="$BUILD_DIR/vendor"
 INSTALL_DIR="$VENDOR_DIR/imagemagick"
-IMAGE_MAGICK_VERSION="${IMAGE_MAGICK_VERSION:-6.9.10-48}"
+IMAGE_MAGICK_VERSION="7.0.8-48"
 CACHE_FILE="$CACHE_DIR/imagemagick-$IMAGE_MAGICK_VERSION.tar.gz"
 
 if [ ! -f $CACHE_FILE ] || [ $CACHE_ENABLED != 'true' ]; then
   # install imagemagick
   IMAGE_MAGICK_FILE="ImageMagick-$IMAGE_MAGICK_VERSION.tar.xz"
   IMAGE_MAGICK_DIR="ImageMagick-$IMAGE_MAGICK_VERSION"
-  IMAGE_MAGICK_URL="https://www.imagemagick.org/download/releases/$IMAGE_MAGICK_FILE"
+  IMAGE_MAGICK_URL="https://raw.githubusercontent.com/steeple-dev/heroku-buildpack-imagemagick/master/$IMAGE_MAGICK_FILE"
+
+
 
   echo "-----> Downloading ImageMagick from $IMAGE_MAGICK_URL"
   wget $IMAGE_MAGICK_URL -P $BUILD_DIR | indent
@@ -35,7 +37,8 @@ if [ ! -f $CACHE_FILE ] || [ $CACHE_ENABLED != 'true' ]; then
   cd $IMAGE_MAGICK_DIR
   export CPPFLAGS="-I$INSTALL_DIR/include"
   export LDFLAGS="-L$INSTALL_DIR/lib"
-  ./configure --prefix=$INSTALL_DIR --without-gvc --with-heic
+  echo "-----> You should have webp and libwebp-dev installed. Also, there is a compatibility error between imagemagick 7.0.8 and liblibheif-dev and libheif-examples, so we force --with-heic=no"
+  ./configure --with-webp=yes --with-heic=no --prefix=$INSTALL_DIR
   make && make install
   cd ..
   rm -rf $IMAGE_MAGICK_DIR
@@ -73,8 +76,8 @@ EOF
 echo "-----> Writing config file"
 cat > $INSTALL_DIR/magic.xml <<EOF
 <magicmap>
- <magic name="JPEG" offset="0" target="\377\330\377"/> 
- <magic name="PNG" offset="0" target="\211PNG\r\n\032\n"/> 
+ <magic name="JPEG" offset="0" target="\377\330\377"/>
+ <magic name="PNG" offset="0" target="\211PNG\r\n\032\n"/>
 </magicmap>
 EOF
 
