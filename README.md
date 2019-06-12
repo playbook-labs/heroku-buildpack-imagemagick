@@ -21,3 +21,8 @@ Since the installation is cached you might want to clean it out due to config ch
 
 1. `heroku plugins:install heroku-repo`
 2. `heroku repo:purge_cache -app HEROKU_APP_NAME`
+
+### How to upgrade ImageMagick version
+- Go to https://imagemagick.org/download/
+- Download .tar.xz and put it in this repo
+- update `IMAGE_MAGICK_VERSION` in `compile`
